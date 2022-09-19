@@ -88,6 +88,9 @@ module.exports.register = async (req, res, next) => {
                     id: result._id,
                     email: result.email,
                     name: result.name,
+                    income: result.income,
+                    expense: result.expense,
+                    balance: result.balance
                 }, process.env.JWT_SECRETE, {
                     expiresIn: '1d'
                 })

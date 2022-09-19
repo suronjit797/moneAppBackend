@@ -5,6 +5,7 @@ const errorMessage = require('./errorMessage');
 module.exports = async (req, res, next) => {
     try {
         const header = req.headers.authorization
+        console.log(header)
         if (!header) {
             return errorMessage(res, 401, 'Unauthorized access', error)
         }

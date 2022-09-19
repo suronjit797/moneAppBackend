@@ -5,8 +5,24 @@ const transitionsValidator = require("../validator/transitionsValidator")
 
 
 // get all transitions
-module.exports.getTransitions = async (req, res, next) => {
+module.exports.getAllTransitions = async (req, res, next) => {
     const result = await Transition.find().populate("author", "-password")
+    try {
+        if (!result.length) {
+            return errorMessage(res, 404, 'No transition found')
+        }
+        res.status(200).send({
+            status: true,
+            message: 'Get all transitions',
+            data: result
+        })
+    } catch (err) {
+        return errorMessage(res, 500, 'Server error occurred', err)
+    }
+}
+module.exports.getTransitions = async (req, res, next) => {
+    const { id } = req.user
+    const result = await Transition.find({author: id}).populate('author', '-password')
     try {
         if (!result.length) {
             return errorMessage(res, 404, 'No transition found')
