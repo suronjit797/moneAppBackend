@@ -21,9 +21,19 @@ module.exports.getAllTransitions = async (req, res, next) => {
     }
 }
 module.exports.getTransitions = async (req, res, next) => {
-    const { id } = req.user
-    const result = await Transition.find({author: id}).populate('author', '-password')
     try {
+        const { id } = req.user
+        const limit = req.query.limit || 20
+        const skip = req.query.skip || 0
+
+        if (!id) {
+            return errorMessage(res, 401, 'Unauthorized Access')
+        }
+        const result = await Transition.find({ author: id })
+            .populate('author', '-password')
+            .sort({ $natural: -1 })
+            .limit(limit)
+            .skip(skip)
         if (!result.length) {
             return errorMessage(res, 404, 'No transition found')
         }
@@ -80,6 +90,7 @@ module.exports.createTransition = async (req, res, next) => {
         })
 
         const result = await transition.save()
+        console.log(result)
         if (!result) {
             errorMessage(res, 401, 'Transition create failed')
         }
@@ -90,17 +101,17 @@ module.exports.createTransition = async (req, res, next) => {
             user.expense += amount
             user.balance -= amount
         }
-        user.balance = user.income - user.expense
         user.transitions.unshift(result._id)
         const userResult = await User.findByIdAndUpdate(id, user, { new: true })
         console.log(userResult)
         if (!userResult) {
-            errorMessage(res, 500, 'Internal server error occurred')
+            errorMessage(res, 404, 'No user found')
         }
         return res.status(200).send({
             status: true,
             message: 'Transition create successfully',
-            data: result
+            transition: result,
+            user: userResult
         })
     } catch (err) {
         return errorMessage(res, 500, 'Internal server error occurred')

@@ -7,7 +7,7 @@ const errorMessage = require('../utilities/errorMessage')
 
 
 // Get all user 
-module.exports.getUsers = async (req, res, next) => {
+module.exports.getAllUsers = async (req, res, next) => {
     try {
         const users = await User.find().populate("transitions")
         if (!users.length) {
@@ -20,6 +20,28 @@ module.exports.getUsers = async (req, res, next) => {
             status: true,
             message: 'Successfully retrieved',
             users,
+        })
+    } catch (error) {
+        return errorMessage(res, 400, "Server Error occurred", error)
+    }
+
+}
+// Get user 
+module.exports.getUser = async (req, res, next) => {
+    const { email } = req.user
+    console.log(email)
+    try {
+        const user = await User.findOne({ email })
+        if (!user) {
+            return res.send({
+                status: false,
+                message: 'No user found',
+            })
+        }
+        res.send({
+            status: true,
+            message: 'Successfully retrieved',
+            user,
         })
     } catch (error) {
         return errorMessage(res, 400, "Server Error occurred", error)
