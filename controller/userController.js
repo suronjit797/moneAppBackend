@@ -26,6 +26,27 @@ module.exports.getUsers = async (req, res, next) => {
     }
 
 }
+// Get a user  
+module.exports.getSingleUsers = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const users = await User.findById(id, "-password").populate("transitions")
+        if (!users) {
+            return res.send({
+                status: false,
+                message: 'No user found',
+            })
+        }
+        res.send({
+            status: true,
+            message: 'Successfully retrieved',
+            users,
+        })
+    } catch (error) {
+        return errorMessage(res, 400, "Server Error occurred", error)
+    }
+
+}
 
 // register
 module.exports.register = async (req, res, next) => {
