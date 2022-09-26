@@ -25,11 +25,15 @@ module.exports.getTransitions = async (req, res, next) => {
         const { id } = req.user
         const limit = req.query.limit || 20
         const skip = req.query.skip || 0
+        const { month, year } = req.query
 
         if (!id) {
             return errorMessage(res, 401, 'Unauthorized Access')
         }
-        const result = await Transition.find({ author: id })
+        const result = await Transition.find({
+            author: id,
+            createdAt: { $gte: `${year}-${month}-01`, $lte: `${year}-${month}-30` }
+        })
             .populate('author', '-password')
             .sort({ $natural: -1 })
             .limit(limit)
@@ -90,7 +94,6 @@ module.exports.createTransition = async (req, res, next) => {
         })
 
         const result = await transition.save()
-        console.log(result)
         if (!result) {
             errorMessage(res, 401, 'Transition create failed')
         }

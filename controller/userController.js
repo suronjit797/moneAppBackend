@@ -29,7 +29,6 @@ module.exports.getAllUsers = async (req, res, next) => {
 // Get user 
 module.exports.getUser = async (req, res, next) => {
     const { email } = req.user
-    console.log(email)
     try {
         const user = await User.findOne({ email })
         if (!user) {
@@ -38,6 +37,7 @@ module.exports.getUser = async (req, res, next) => {
                 message: 'No user found',
             })
         }
+        user.password = ''
         res.send({
             status: true,
             message: 'Successfully retrieved',
