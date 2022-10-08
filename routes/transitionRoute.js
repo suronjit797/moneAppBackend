@@ -13,7 +13,7 @@ router.get('/:id', jwtVerify, transitionController.getTransitionById)
 router.post('/', jwtVerify, transitionController.createTransition)
 
 //DELETE: http://localhost:5000/api/v1/transition/deleteAll
-// router.delete('/deleteAll', jwtVerify, transitionController.removeAllTransition)  // only for emergency
+router.delete('/deleteAll', jwtVerify, transitionController.removeAllTransition)  // only for emergency
 //DELETE: http://localhost:5000/api/v1/transition/:id
 router.delete('/:id', jwtVerify, transitionController.removeTransition)
 

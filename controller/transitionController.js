@@ -130,6 +130,7 @@ module.exports.removeTransition = async (req, res, next) => {
         const userId = req.user.id
         const user = await User.findById(userId)
         const transition = await Transition.findById(id).populate("author", "-password, -transitions")
+        user.transitions.splice(user.transitions.indexOf(id), 1)
         if (transition.type === 'income') {
             user.balance -= transition.amount
             user.income -= transition.amount
@@ -163,10 +164,10 @@ module.exports.removeAllTransition = async (req, res, next) => {
         user.expense = 0
         user.transitions = []
 
-        const updatedUser = await User.findByIdAndUpdate(userId, user, {new: true})
+        const updatedUser = await User.findByIdAndUpdate(userId, user, { new: true })
 
 
-        res.send({updatedUser, transition})
+        res.send({ updatedUser, transition })
 
     } catch (err) {
         return errorMessage(res, 500, 'Server error occurred', err)
