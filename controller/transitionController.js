@@ -109,7 +109,6 @@ module.exports.createTransition = async (req, res, next) => {
         }
         user.transitions.unshift(result._id)
         const userResult = await User.findByIdAndUpdate(id, user, { new: true })
-        console.log(userResult)
         if (!userResult) {
             errorMessage(res, 404, 'No user found')
         }
@@ -154,7 +153,6 @@ module.exports.removeTransition = async (req, res, next) => {
 // delete all
 module.exports.removeAllTransition = async (req, res, next) => {
     try {
-        console.log('delte all')
         const userId = req.user.id
 
         const transition = await Transition.deleteMany()
@@ -164,10 +162,11 @@ module.exports.removeAllTransition = async (req, res, next) => {
         user.income = 0
         user.expense = 0
         user.transitions = []
-        User.findByIdAndUpdate(userId, user, {new: true})
+
+        const updatedUser = await User.findByIdAndUpdate(userId, user, {new: true})
 
 
-        res.send({user, transition})
+        res.send({updatedUser, transition})
 
     } catch (err) {
         return errorMessage(res, 500, 'Server error occurred', err)
