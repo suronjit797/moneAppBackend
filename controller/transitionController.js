@@ -20,10 +20,12 @@ module.exports.getAllTransitions = async (req, res, next) => {
         return errorMessage(res, 500, 'Server error occurred', err)
     }
 }
+
+// get monthly transitions
 module.exports.getTransitions = async (req, res, next) => {
     try {
         const { id } = req.user
-        const limit = req.query.limit || 20
+        const limit = req.query.limit || 50
         const skip = req.query.skip || 0
         const { month, year } = req.query
 
@@ -51,6 +53,8 @@ module.exports.getTransitions = async (req, res, next) => {
     }
 }
 
+
+// get a transition by id
 module.exports.getTransitionById = async (req, res, next) => {
     try {
         const id = req.params.id
@@ -69,7 +73,6 @@ module.exports.getTransitionById = async (req, res, next) => {
 }
 
 
-// get a transition by id
 
 // create a transition
 module.exports.createTransition = async (req, res, next) => {
@@ -122,6 +125,54 @@ module.exports.createTransition = async (req, res, next) => {
 }
 
 // delete a transition by id
+module.exports.removeTransition = async (req, res, next) => {
+    try {
+        const id = req.params.id
+        const userId = req.user.id
+        const user = await User.findById(userId)
+        const transition = await Transition.findById(id).populate("author", "-password, -transitions")
+        if (transition.type === 'income') {
+            user.balance -= transition.amount
+            user.income -= transition.amount
+        }
+        if (transition.type === 'expense') {
+            user.balance += transition.amount
+            user.expense -= transition.amount
+        }
+        await Transition.findByIdAndDelete(id)
+        const userResult = await User.findByIdAndUpdate(userId, user, { new: true })
+        return res.status(200).send({
+            status: true,
+            message: 'Transition delete successfully',
+            user: userResult
+        })
+    } catch (err) {
+        return errorMessage(res, 500, 'Server error occurred', err)
+    }
+}
+
+// delete all
+module.exports.removeAllTransition = async (req, res, next) => {
+    try {
+        console.log('delte all')
+        const userId = req.user.id
+
+        const transition = await Transition.deleteMany()
+
+        const user = await User.findById(userId)
+        user.balance = 0
+        user.income = 0
+        user.expense = 0
+        user.transitions = []
+        User.findByIdAndUpdate(userId, user, {new: true})
+
+
+        res.send({user, transition})
+
+    } catch (err) {
+        return errorMessage(res, 500, 'Server error occurred', err)
+    }
+}
 
 
 // update a transition by id
