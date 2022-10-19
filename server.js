@@ -11,7 +11,7 @@ const app = express()
 
 
 // middleware
-app.use(cors({origin: 'https://money-app-psi.vercel.app'}))
+app.use(cors({origin: '*'}))
 app.use(express.json())
 
 mongoose.connect(process.env.DB_URI).then(() => console.log(`Database is connected...`.blue.bold))
